@@ -1,0 +1,130 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const recent = posts.slice(0, 6);
+
+const dateFmt = (d: Date) =>
+  new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+
+const categories = [
+  { href: '/kantoor/', title: 'Kantoor', note: 'Alles voor een prettige werkplek' },
+  { href: '/kantoormeubilair/', title: 'Kantoormeubilair', note: 'Bureaus, stoelen en kasten' },
+  { href: '/computers/', title: 'Computers', note: 'Laptops, monitoren en randapparatuur' },
+  { href: '/elektronica/', title: 'Elektronica', note: 'Printers, schermen en meer' },
+  { href: '/meubels/', title: 'Meubels', note: 'Meubels voor kantoor en thuis' },
+  { href: '/blog/', title: 'Blog', note: 'Tips, achtergronden en artikelen' },
+];
+---
+
+<BaseLayout
+  title="DeKantoorGids.nl - Vergelijk goede kantoormeublen en accessoires"
+  description="Op DeKantoorGids.nl vind je beoordelingen en reviews van de beste kantoormeubelen, accessoires en andere producten voor op kantoor."
+>
+  <section class="hero">
+    <div class="wrap lead">
+      <h1>DeKantoorgids.nl</h1>
+      <p>
+        Hoeveel uur per dag breng jij in je kantoor door? Aangezien een gemiddeld
+        persoon zo&rsquo;n 8 uur op een dag werkt, breng je al snel 1/3e van een dag in
+        je kantoor door. Voldoende reden dus om je kantoor geheel naar wens in te
+        richten. Daarvoor ben je bij Dekantoorgids.nl in ieder geval aan het juiste
+        adres.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#blok1">Lees meer</a>
+        <a class="btn btn-ghost" href="/blog/">Naar de blog</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Zoek per categorie</h2>
+        <p>
+          Op deze website vind je informatie en adviezen over de beste
+          kantoorproducten. Op zoek naar een nieuw product? Neem dan
+          <a href="/contact/">contact</a> met ons op.
+        </p>
+      </div>
+
+      <div class="grid grid-3">
+        {categories.map((c) => (
+          <a class="tile" href={c.href}>
+            <strong>{c.title}</strong>
+            <span>{c.note}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Nieuwste artikelen</h2>
+        <p>Bekijk hier de meest recente artikelen van onze redactie.</p>
+      </div>
+
+      <div class="grid grid-3">
+        {recent.map((post) => (
+          <article class="card">
+            {post.data.heroImage && (
+              <a href={`/${post.id}/`} class="card-media">
+                <img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
+              </a>
+            )}
+            <div class="card-body">
+              <h3><a href={`/${post.id}/`}>{post.data.title}</a></h3>
+              <p>{post.data.description}</p>
+              <div class="meta">
+                <time datetime={post.data.pubDate.toISOString()}>{dateFmt(post.data.pubDate)}</time>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div style="text-align:center;margin-top:2.5rem">
+        <a class="btn" href="/blog/">Alle artikelen bekijken</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="blok1">
+    <div class="wrap-narrow prose">
+      <h2>Beste producten voor kantoor</h2>
+      <p>
+        Je doet er verstandig aan om onze adviezen goed op te volgen. Alle producten
+        die wij aanraden, zijn namelijk van grote meerwaarde voor in je kantoor. Met
+        deze producten ga je effici&euml;nter, sneller en aangenamer werken. Bovendien
+        hoef je voor de meeste producten niet de absolute hoofdprijs te betalen. Nee,
+        wij zorgen ervoor dat je op een betaalbare manier je gehele kantoor naar wens
+        in kunt richten.
+      </p>
+      <p>
+        In de afgelopen periode hebben wij al veel reviews aan onze website toegevoegd.
+        Wij raden je aan om deze reviews vooral op je gemakje door te nemen. Je kunt
+        vervolgens direct de gewenste producten kopen, maar je kunt hiermee ook de
+        nodige inspiratie opdoen. Doe inspiratie op en koop de beste producten voor
+        jouw (thuis)kantoor.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cta-band">
+        <div>
+          <h2>Op zoek naar een specifiek product?</h2>
+          <p>Laat het ons weten &mdash; we denken graag met je mee.</p>
+        </div>
+        <a class="btn" href="/contact/">Neem contact op</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
