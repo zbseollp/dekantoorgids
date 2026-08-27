@@ -1,45 +1,75 @@
 ---
+import { getCollection } from 'astro:content';
+
 const year = new Date().getFullYear();
+
+// Populaire artikelen = de nieuwste uit de collectie, zodat de footer
+// meegroeit met wat er via Payload gepubliceerd wordt.
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const popular = posts.slice(0, 6);
+
+const categories = [
+  { href: '/kantoor/', label: 'Kantoor' },
+  { href: '/kantoormeubilair/', label: 'Kantoormeubilair' },
+  { href: '/computers/', label: 'Computers' },
+  { href: '/elektronica/', label: 'Elektronica' },
+  { href: '/meubels/', label: 'Meubels' },
+];
+
+const about = [
+  { href: '/over-ons/', label: 'Over ons' },
+  { href: '/contact/', label: 'Contact' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/sitemap/', label: 'Sitemap' },
+];
 ---
 
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-grid">
-      <div>
+      <div class="footer-brand">
         <div class="footer-logo">
           <img src="/logo.svg" alt="DeKantoorgids.nl" width="223" height="24" />
         </div>
         <p>
-          Onafhankelijke informatie en adviezen over kantoorproducten. Ons team van
-          specialisten schrijft over meubels, computers en elektronica voor op kantoor
-          en de werkplek thuis.
+          Ben je op zoek naar goede accessoires en meubels voor kantoor? Bekijk dan
+          de beste producten op DeKantoorgids.nl. Vergelijk kantoorproducten op prijs
+          en kwaliteit op onze website.
         </p>
       </div>
 
       <div>
         <h4>Categorieën</h4>
         <ul>
-          <li><a href="/kantoor/">Kantoor</a></li>
-          <li><a href="/kantoormeubilair/">Kantoormeubilair</a></li>
-          <li><a href="/computers/">Computers</a></li>
-          <li><a href="/elektronica/">Elektronica</a></li>
-          <li><a href="/meubels/">Meubels</a></li>
+          {categories.map((c) => (
+            <li><a href={c.href}>{c.label}</a></li>
+          ))}
+        </ul>
+      </div>
+
+      <div>
+        <h4>Nieuwste artikelen</h4>
+        <ul>
+          {popular.map((p) => (
+            <li><a href={`/${p.id}/`}>{p.data.title}</a></li>
+          ))}
         </ul>
       </div>
 
       <div>
         <h4>Over deze site</h4>
         <ul>
-          <li><a href="/over-ons/">Over ons</a></li>
-          <li><a href="/contact/">Contact</a></li>
-          <li><a href="/blog/">Blog</a></li>
-          <li><a href="/sitemap/">Sitemap</a></li>
+          {about.map((a) => (
+            <li><a href={a.href}>{a.label}</a></li>
+          ))}
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
-      <span>&copy; {year} DeKantoorgids.nl — Alle rechten voorbehouden.</span>
+      <span>&copy; {year} DeKantoorgids.nl &mdash; Alle rechten voorbehouden.</span>
       <span>Kantoorartikelen, meubels en elektronica vergeleken.</span>
     </div>
   </div>
