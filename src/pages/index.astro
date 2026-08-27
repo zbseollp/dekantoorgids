@@ -5,7 +5,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
-const recent = posts.slice(0, 6);
+const featured = posts[0];
+const recent = posts.slice(1, 7);
 
 const dateFmt = (d: Date) =>
   new Intl.DateTimeFormat('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
@@ -18,38 +19,64 @@ const categories = [
   { href: '/meubels/', title: 'Meubels', note: 'Meubels voor kantoor en thuis' },
   { href: '/blog/', title: 'Blog', note: 'Tips, achtergronden en artikelen' },
 ];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'DeKantoorgids.nl',
+  url: 'https://dekantoorgids.nl/',
+  description:
+    'Beoordelingen en reviews van de beste kantoormeubelen, accessoires en andere producten voor op kantoor.',
+};
 ---
 
 <BaseLayout
   title="DeKantoorGids.nl - Vergelijk goede kantoormeublen en accessoires"
   description="Op DeKantoorGids.nl vind je beoordelingen en reviews van de beste kantoormeubelen, accessoires en andere producten voor op kantoor."
+  schema={schema}
 >
   <section class="hero">
     <div class="wrap lead">
-      <h1>DeKantoorgids.nl</h1>
-      <p>
+      <h1>Beter werken begint bij je kantoor</h1>
+      <p class="sub">
         Hoeveel uur per dag breng jij in je kantoor door? Aangezien een gemiddeld
-        persoon zo&rsquo;n 8 uur op een dag werkt, breng je al snel 1/3e van een dag in
-        je kantoor door. Voldoende reden dus om je kantoor geheel naar wens in te
-        richten. Daarvoor ben je bij Dekantoorgids.nl in ieder geval aan het juiste
-        adres.
+        persoon zo&rsquo;n 8 uur op een dag werkt, breng je al snel 1/3e van een dag
+        in je kantoor door. Voldoende reden dus om je kantoor geheel naar wens in te
+        richten &mdash; daarvoor ben je bij DeKantoorgids.nl aan het juiste adres.
       </p>
       <div class="hero-actions">
-        <a class="btn" href="#blok1">Lees meer</a>
-        <a class="btn btn-ghost" href="/blog/">Naar de blog</a>
+        <a class="btn" href="/blog/">Lees onze artikelen</a>
+        <a class="btn btn-ghost" href="#categorieen">Bekijk categorieën</a>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat">
+          <strong>{posts.length}</strong>
+          <span>artikelen</span>
+        </div>
+        <div class="stat">
+          <strong>5</strong>
+          <span>categorieën</span>
+        </div>
+        <div class="stat">
+          <strong>Onafhankelijk</strong>
+          <span>advies van onze redactie</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="categorieen">
     <div class="wrap">
       <div class="section-head">
-        <h2>Zoek per categorie</h2>
-        <p>
-          Op deze website vind je informatie en adviezen over de beste
-          kantoorproducten. Op zoek naar een nieuw product? Neem dan
-          <a href="/contact/">contact</a> met ons op.
-        </p>
+        <div>
+          <h2>Zoek per categorie</h2>
+          <p>
+            Op deze website vind je informatie en adviezen over de beste
+            kantoorproducten. Op zoek naar een specifiek product? Neem dan
+            <a href="/contact/">contact</a> met ons op.
+          </p>
+        </div>
       </div>
 
       <div class="grid grid-3">
@@ -63,20 +90,51 @@ const categories = [
     </div>
   </section>
 
-  <section class="section section-alt">
+  {featured && (
+    <section class="section section-sunken">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <h2>Uitgelicht</h2>
+            <p>Het nieuwste artikel van onze redactie.</p>
+          </div>
+        </div>
+
+        <article class="card" style="display:grid;grid-template-columns:minmax(0,1fr);gap:0">
+          <div class="card-body" style="padding:1.9rem 2rem 2rem">
+            <span class="tag">Nieuwste</span>
+            <h3 style="font-size:clamp(1.35rem,2.6vw,1.9rem);margin:.7rem 0 .6rem">
+              <a href={`/${featured.id}/`}>{featured.data.title}</a>
+            </h3>
+            <p style="font-size:1.02rem;max-width:70ch">{featured.data.description}</p>
+            <div class="meta">
+              <time datetime={featured.data.pubDate.toISOString()}>
+                {dateFmt(featured.data.pubDate)}
+              </time>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  )}
+
+  <section class="section">
     <div class="wrap">
       <div class="section-head">
-        <h2>Nieuwste artikelen</h2>
-        <p>Bekijk hier de meest recente artikelen van onze redactie.</p>
+        <div>
+          <h2>Nieuwste artikelen</h2>
+          <p>Bekijk hier de meest recente artikelen van onze redactie.</p>
+        </div>
+        <a class="btn btn-quiet btn-sm" href="/blog/">Alle {posts.length} artikelen</a>
       </div>
 
       <div class="grid grid-3">
         {recent.map((post) => (
           <article class="card">
             {post.data.heroImage && (
-              <a href={`/${post.id}/`} class="card-media">
-                <img src={post.data.heroImage} alt={post.data.title} loading="lazy" />
-              </a>
+              <div class="card-media">
+                <img src={post.data.heroImage} alt="" loading="lazy" />
+              </div>
             )}
             <div class="card-body">
               <h3><a href={`/${post.id}/`}>{post.data.title}</a></h3>
@@ -88,16 +146,12 @@ const categories = [
           </article>
         ))}
       </div>
-
-      <div style="text-align:center;margin-top:2.5rem">
-        <a class="btn" href="/blog/">Alle artikelen bekijken</a>
-      </div>
     </div>
   </section>
 
-  <section class="section" id="blok1">
+  <section class="section section-sunken">
     <div class="wrap-narrow prose">
-      <h2>Beste producten voor kantoor</h2>
+      <h2 style="margin-top:0">Beste producten voor kantoor</h2>
       <p>
         Je doet er verstandig aan om onze adviezen goed op te volgen. Alle producten
         die wij aanraden, zijn namelijk van grote meerwaarde voor in je kantoor. Met
